@@ -1,0 +1,1 @@
+python main.py --dataset aerial --nepochs 30 --batch_size 4 --val_batch_size 1 --nworkers 4 --crop_w 752 --crop_h 480 --max_depth 400 --save_path saved --data_path /home/khang/project/aerial_v2 --learning_rate 0.001 --lr_decay_iters 5 --lr_policy plateau --print_freq 1000 --save_freq 10
