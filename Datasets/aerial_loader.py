@@ -39,8 +39,6 @@ class AerialPreprocessing(object):
         self.val_paths = {'img': [], 'lidar_in': [], 'gt': []}
         self.test_files = {'img': [], 'lidar_in': []}
         self.dataset_path = dataset_path
-        self.depth_keyword = 'proj_depth'
-        self.rgb_keyword = 'kitti_raw'
         # self.use_rgb = input_type == 'rgb'
         self.use_rgb = True
 
@@ -72,7 +70,6 @@ class AerialPreprocessing(object):
                     gt_paths.append(os.path.join(path_video, 'depth%d.png' % id_in_data))
 
         return img_paths, gt_paths, sdepth_paths
-
 
     def downsample(self, lidar_data, destination, num_samples=500):
         # Define sampler
