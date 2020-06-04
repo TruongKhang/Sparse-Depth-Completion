@@ -81,7 +81,7 @@ def first_run(save_path):
     return ''
 
 
-def depth_read(img, sparse_val):
+def depth_read(img, sparse_val, scale_factor=256.):
     # loads depth map D from png file
     # and returns it as a numpy array,
     # for details see readme.txt
@@ -89,7 +89,7 @@ def depth_read(img, sparse_val):
     depth_png = np.expand_dims(depth_png, axis=2)
     # make sure we have a proper 16bit depth map here.. not 8bit!
     assert(np.max(depth_png) > 255)
-    depth = depth_png.astype(np.float) / 256.
+    depth = depth_png.astype(np.float) / scale_factor
     depth[depth_png == 0] = sparse_val
     return depth
 

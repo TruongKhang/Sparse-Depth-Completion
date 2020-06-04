@@ -25,18 +25,20 @@ def get_loader(args, dataset):
             args.data_path, dataset.train_paths, args.input_type, resize=None,
             rotate=args.rotate, crop=crop_size, flip=args.flip, rescale=args.rescale,
             max_depth=args.max_depth, sparse_val=args.sparse_val, normal=args.normal, 
-            disp=args.use_disp, train=perform_transformation, num_samples=args.num_samples)
+            disp=args.use_disp, train=perform_transformation, num_samples=args.num_samples, dataset_name=args.dataset)
     val_dataset = Dataset_loader(
             args.data_path, dataset.val_paths, args.input_type, resize=None,
             rotate=args.rotate, crop=crop_size, flip=args.flip, rescale=args.rescale,
             max_depth=args.max_depth, sparse_val=args.sparse_val, normal=args.normal, 
-            disp=args.use_disp, train=False, num_samples=args.num_samples)
-    val_select_dataset = Dataset_loader(
+            disp=args.use_disp, train=False, num_samples=args.num_samples, dataset_name=args.dataset)
+    val_select_dataset = None
+    if args.dataset == 'kitti':
+        val_select_dataset = Dataset_loader(
             args.data_path, dataset.selected_paths, args.input_type,
             resize=None, rotate=args.rotate, crop=crop_size,
             flip=args.flip, rescale=args.rescale, max_depth=args.max_depth,
-            sparse_val=args.sparse_val, normal=args.normal, 
-            disp=args.use_disp, train=False, num_samples=args.num_samples)
+            sparse_val=args.sparse_val, normal=args.normal,
+            disp=args.use_disp, train=False, num_samples=args.num_samples, dataset_name=args.dataset)
 
     train_sampler = None
     val_sampler = None
@@ -52,13 +54,16 @@ def get_loader(args, dataset):
         train_dataset, batch_size=args.batch_size, sampler=train_sampler,
         shuffle=train_sampler is None, num_workers=args.nworkers,
         pin_memory=True, drop_last=True)
+    # train_loader = None
     val_loader = DataLoader(
         val_dataset, batch_size=int(args.val_batch_size),  sampler=val_sampler,
         shuffle=val_sampler is None, num_workers=args.nworkers_val,
         pin_memory=True, drop_last=True)
-    val_selection_loader = DataLoader(
-        val_select_dataset, batch_size=int(args.val_batch_size), shuffle=False,
-        num_workers=args.nworkers_val, pin_memory=True, drop_last=True)
+    val_selection_loader = None
+    if args.dataset == 'kitti':
+        val_selection_loader = DataLoader(
+            val_select_dataset, batch_size=int(args.val_batch_size), shuffle=False,
+            num_workers=args.nworkers_val, pin_memory=True, drop_last=True)
     return train_loader, val_loader, val_selection_loader
 
 
@@ -67,7 +72,7 @@ class Dataset_loader(Dataset):
 
     def __init__(self, data_path, dataset_type, input_type, resize,
                  rotate, crop, flip, rescale, max_depth, sparse_val=0.0, 
-                 normal=False, disp=False, train=False, num_samples=None):
+                 normal=False, disp=False, train=False, num_samples=None, dataset_name='kitti'):
 
         # Constants
         self.use_rgb = input_type == 'rgb'
@@ -81,6 +86,7 @@ class Dataset_loader(Dataset):
         self.rescale = rescale
         self.max_depth = max_depth
         self.sparse_val = sparse_val
+        self.dataset_name = dataset_name
 
         # Transformations
         self.totensor = transforms.ToTensor()
@@ -117,14 +123,19 @@ class Dataset_loader(Dataset):
                 img = F.crop(img, i, j, h, w)
                 if hflip_input:
                     img = F.hflip(img)
-            input, gt = depth_read(input, self.sparse_val), depth_read(gt, self.sparse_val)
+            if self.dataset_name == 'kitti':
+                input, gt = depth_read(input, self.sparse_val, 256.), depth_read(gt, self.sparse_val, 256.)
+            else:
+                input, gt = depth_read(input, self.sparse_val, 100.), depth_read(gt, self.sparse_val, 100.)
             
         else:
             input, gt = self.center_crop(input), self.center_crop(gt)
             if self.use_rgb:
                 img = self.center_crop(img)
-            input, gt = depth_read(input, self.sparse_val), depth_read(gt, self.sparse_val)
-            
+            if self.dataset_name == 'kitti':
+                input, gt = depth_read(input, self.sparse_val, 256.), depth_read(gt, self.sparse_val, 256.)
+            else:
+                input, gt = depth_read(input, self.sparse_val, 100.), depth_read(gt, self.sparse_val, 100.)
 
         return input, gt, img
 

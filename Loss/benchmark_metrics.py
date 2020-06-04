@@ -17,7 +17,7 @@ class Metrics(object):
     def calculate(self, prediction, gt):
         valid_mask = (gt > 0).detach()
 
-        self.num = valid_mask.sum().item()
+        self.num = valid_mask.size(0) #valid_mask.sum().item()
         prediction = prediction[valid_mask]
         gt = gt[valid_mask]
 
