@@ -340,14 +340,14 @@ def main():
         print("===> Average RMSE score on validation set is {:.4f}".format(score_valid))
         print("===> Average MAE score on validation set is {:.4f}".format(score_valid_1))
         # Evaluate model on selected validation set
-        if args.subset is None:
-            print("=> Start selection validation set")
-            score_selection, score_selection_1, losses_selection = validate(valid_selection_loader, model, criterion_lidar, criterion_rgb, criterion_local, criterion_guide, epoch)
-            total_score = score_selection
-            print("===> Average RMSE score on selection set is {:.4f}".format(score_selection))
-            print("===> Average MAE score on selection set is {:.4f}".format(score_selection_1))
-        else:
-            total_score = score_valid
+        # if args.subset is None:
+        #     print("=> Start selection validation set")
+        #     score_selection, score_selection_1, losses_selection = validate(valid_selection_loader, model, criterion_lidar, criterion_rgb, criterion_local, criterion_guide, epoch)
+        #     total_score = score_selection
+        #     print("===> Average RMSE score on selection set is {:.4f}".format(score_selection))
+        #     print("===> Average MAE score on selection set is {:.4f}".format(score_selection_1))
+        # else:
+        total_score = score_valid
 
         print("===> Last best score was RMSE of {:.4f} in epoch {}".format(lowest_loss,
                                                                            best_epoch))
